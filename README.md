@@ -47,7 +47,7 @@ Destroy the environment:
 These variables are available to be given or override the default:
 
 | Variable                         | Default                   | Explanation                        |
------------------------------------------------------------------------------------------------------
+|----------------------------------|---------------------------|------------------------------------|
 | AWS_ACCESS_KEY_ID                |                           | needed, will not run without       |
 | AWS_SECRET_ACCESS_KEY            |                           | needed, will not run without       |
 | AWS_REGION                       |                           |                                    |
