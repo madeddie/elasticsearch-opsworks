@@ -114,8 +114,8 @@
                 "Subnets": { "Ref": "SubnetList" },
                 "Scheme": "internal",
                 "SecurityGroups": [
-                    { "Ref": "StackInternalAccess" },
-                    { "Ref": "LBExternalAccess" }
+                    { "Ref": "StackInternal" },
+                    { "Ref": "LBExternal" }
                 ],
                 "Listeners" : [
                     {
@@ -130,6 +130,16 @@
                         "LoadBalancerPort" : "80",
                         "InstancePort" : "80",
                         "Protocol" : "HTTP"
+                    },
+                    {
+                        "LoadBalancerPort" : "9200",
+                        "InstancePort" : "9200",
+                        "Protocol" : "TCP"
+                    },
+                    {
+                        "LoadBalancerPort" : "9300",
+                        "InstancePort" : "9300",
+                        "Protocol" : "TCP"
                     }
                 ],
                 "HealthCheck" : {
@@ -273,7 +283,7 @@
             }
         },
 
-        "StackInternalAccess": {
+        "StackInternal": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
                 "GroupDescription": "All traffic allowed between nodes and loadbalancer",
@@ -281,18 +291,18 @@
            }
         },
 
-        "InterConnectingIngress": {
+        "StackInternalIngress": {
             "Type": "AWS::EC2::SecurityGroupIngress",
             "Properties": {
-                "GroupId": { "Ref": "StackInternalAccess" },
+                "GroupId": { "Ref": "StackInternal" },
                 "IpProtocol": "tcp",
                 "FromPort": "0",
                 "ToPort": "65535",
-                "SourceSecurityGroupId": { "Ref": "StackInternalAccess" }
+                "SourceSecurityGroupId": { "Ref": "StackInternal" }
             }
         },
 
-        "StackExternalAccess": {
+        "StackExternal": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
                 "GroupDescription": "Allow access to instances from outside",
@@ -320,7 +330,7 @@
             }
         },
 
-        "LBExternalAccess": {
+        "LBExternal": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
                 "GroupDescription": "Access from outside to the loadbalancer",
@@ -339,6 +349,17 @@
                         "CidrIp": "0.0.0.0/0"
                     }
                 ]
+            }
+        },
+
+        LBExternalIngress": {
+            "Type": "AWS::EC2::SecurityGroupIngress",
+            "Properties": {
+                "GroupId": { "Ref": "LBExternal" },
+                "IpProtocol": "tcp",
+                "FromPort": "0",
+                "ToPort": "65535",
+                "SourceSecurityGroupId": { "Ref": "LBExternal" }
             }
         },
 
@@ -365,8 +386,8 @@
                     }
                 ],
                 "CustomSecurityGroupIds": [
-                    { "Ref": "StackInternalAccess" },
-                    { "Ref": "StackExternalAccess" }
+                    { "Ref": "StackInternal" },
+                    { "Ref": "StackExternal" }
                 ]
             }
         }
