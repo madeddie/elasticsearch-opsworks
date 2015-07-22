@@ -1,4 +1,5 @@
 require 'aws-sdk-v1'
+require 'pp'
 
 SUCCESS_STATS = [:create_complete, :update_complete, :update_rollback_complete]
 FAILED_STATS = [:create_failed, :update_failed]
@@ -10,12 +11,19 @@ DEFAULT_RECIPES = [
   'elasticsearch::proxy',
   'elasticsearch::plugins',
   'java',
-  'layer-custom::esmonit',
-  'layer-custom::cloudwatch-custom'
+  'layer-custom::esmonit'
 ].join(',')
 
 def opsworks
   AWS::OpsWorks::Client.new(region: 'us-east-1')
+end
+
+def ec2
+  AWS::EC2.new
+end
+
+def cfm
+  AWS::CloudFormation.new
 end
 
 def wait_for_cf_stack_op_to_finish(stack)
@@ -76,16 +84,28 @@ def wait_for_deployment(deployment_id, status)
   end
 end
 
-def all_availability_zones
-  ec2 = AWS::EC2.new
-  ec2.availability_zones.map(&:name)
-  ['eu-west-1a', 'eu-west-1b']
+def get_vpc_id(vpc_name)
+  response = ec2.vpcs
+  response.filter('tag:Name', vpc_name).first.vpc_id
 end
 
-def get_subnet(az)
-  ec2 = AWS::EC2.new
+def get_subnet_id(subnet_name)
   response = ec2.subnets
-  response.filter('availability-zone', az).filter('subnet-id', ['subnet-49ef3a10', 'subnet-a1c44fc4']).first.subnet_id
+  response.filter('vpc-id', get_vpc_id(vpc_name)).filter('tag:Name', subnet_name).first.subnet_id
+end
+
+def subnet_id_array
+  subnet_names.split(',').map!(&:strip).map! { |subnet_name| get_subnet_id("#{vpc_name}-#{subnet_name}") }
+end
+
+def all_availability_zones
+  # ec2.availability_zones.map(&:name)
+  subnet_id_array.map { |subnet_id| ec2.subnets[subnet_id].availability_zone.name }
+end
+
+def get_subnet_for_az(az)
+  response = ec2.subnets
+  response.filter('availability-zone', az).filter('subnet-id', subnet_id_array).first.subnet_id
 end
 
 def get_all_instances(layer_id)
@@ -112,7 +132,7 @@ def detach_ebs_volumes(instance_id)
 end
 
 def create_instance(stack_id, layer_id, az)
-  subnet = get_subnet(az)
+  subnet = get_subnet_for_az(az)
   opsworks.create_instance(stack_id: stack_id,
                            layer_ids: [layer_id],
                            instance_type: ENV['INSTANCE_TYPE'] || 'c3.large',
@@ -177,6 +197,14 @@ def replace_instances(existing_instances)
   end
 end
 
+def vpc_name
+  ENV['VPC'] || 'devvpc'
+end
+
+def subnet_names
+  ENV['SUBNETS'] || 'SubnetData1A,SubnetApps1B'
+end
+
 def min_master_node_count(instance_count)
   instance_count <= 2 ? 1 : (instance_count / 2 + 1)
 end
@@ -190,7 +218,9 @@ def stack_name
 end
 
 def route53_zone_name
-  ENV['ROUTE53_ZONE_NAME'] || 'appdev.io'
+  zone = ENV['ROUTE53_ZONE_NAME'] || 'appdev.io.'
+  zone << '.' unless zone.end_with?('.')
+  zone
 end
 
 def get_required(name)
@@ -205,27 +235,29 @@ end
 
 desc 'Provisions the ElasticSearch cluster'
 task :provision do
-  cfm = AWS::CloudFormation.new
   instance_count = (ENV['INSTANCE_COUNT'] || '2').to_i
   template = File.read('opsworks-service.template')
   cf_stack = cfm.stacks[stack_name]
 
   params = {
-    'SSLCertificateName' => get_required('SSL_CERTIFICATE_NAME'),
-    'Route53ZoneName' => route53_zone_name,
-    'SearchDomainName' => ENV['SEARCH_DOMAIN_NAME'] || "#{stack_name}.#{route53_zone_name}",
-
-    'SshKeyName' => ENV['SSH_KEY_NAME'] || 'elasticsearch',
-    'SearchUser' => ENV['SEARCH_USER'] || 'elasticsearch',
-    'SearchPassword' => ENV['SEARCH_PASSWORD'] || 'pass',
     'InstanceCount' => instance_count.to_s,
     'MinMasterNodes' => min_master_node_count(instance_count).to_s,
     'ClusterName' => stack_name,
+    'Route53ZoneName' => route53_zone_name,
+    'VPCId' => get_vpc_id(vpc_name),
+    'SubnetList' => subnet_id_array.join(','),
+    'SSLCertificateName' => ENV['SSL_CERTIFICATE_NAME'] || 'wild.appdev.io',
+    'SearchDomainName' => ENV['SEARCH_DOMAIN_NAME'] || "#{stack_name}.#{route53_zone_name}",
+    'SshKeyName' => ENV['SSH_KEY_NAME'] || 'dev@lgi',
+    'SearchUser' => ENV['SEARCH_USER'] || 'elasticsearch',
+    'SearchPassword' => ENV['SEARCH_PASSWORD'] || 'password',
     'RecipeList' => DEFAULT_RECIPES
   }
 
   add_param_if_set(params, 'ElasticSearchVersion', 'ELASTICSEARCH_VERSION')
   add_param_if_set(params, 'ElasticSearchAWSCloudPluginVersion', 'ELASTICSEARCH_AWS_PLUGIN_VERSION')
+
+  pp params
 
   if cf_stack.exists?
     begin
@@ -252,7 +284,6 @@ end
 
 desc 'Destroys the ElasticSearch cluster'
 task :destroy do
-  cfm = AWS::CloudFormation.new
   cf_stack = cfm.stacks[stack_name]
   if cf_stack.exists?
     puts "Destroying environment #{environment}"
@@ -265,7 +296,7 @@ task :destroy do
       wait_for_instance(instance[:instance_id], 'stopped')
 
       puts "Deleting instance #{instance[:hostname]}"
-      opsworks.delete_instance(instance_id: instance[:instance_id])
+      opsworks.delete_instance(instance_id: instance[:instance_id], delete_volumes: !ENV['SKIP_DELETE_VOLUMES'])
       wait_for_instance(instance[:instance_id], 'nonexistent')
     end
 

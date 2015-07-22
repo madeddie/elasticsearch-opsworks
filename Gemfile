@@ -1,4 +1,5 @@
 source 'https://rubygems.org'
 
-gem 'aws-sdk-v1'
 gem 'rake'
+gem 'aws-sdk-v1'
+gem 'aws-sdk', '~> 2'
