@@ -352,7 +352,7 @@
             }
         },
 
-        LBExternalIngress": {
+        "LBExternalIngress": {
             "Type": "AWS::EC2::SecurityGroupIngress",
             "Properties": {
                 "GroupId": { "Ref": "LBExternal" },
