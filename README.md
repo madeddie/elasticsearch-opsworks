@@ -44,24 +44,26 @@ Destroy the environment:
 
 ## Variables
 
-These variables are available to be given or override the [default]:
+These variables are available to be given or override the default:
 
-* AWS_ACCESS_KEY_ID
-* AWS_SECRET_ACCESS_KEY
-* AWS_REGION
-* VPC [devvpc]
-* SUBNETS [SubnetData1A,SubnetApps1B]
-* ENVIRONMENT [my]
-* ROUTE53_ZONE_NAME [appdev.io]
-* INSTANCE_COUNT [2]
-* SSL_CERTIFICATE_NAME [wild.appdev.io]
-* SEARCH_DOMAIN_NAME [$ENVIRONMENT-es.$ROUTE53_ZONE_NAME] (so, if all are not gives `my-es.appdev.io`)
-* SSH_KEY_NAME [dev@lgi]
-* SEARCH_USER [elasticsearch]
-* SEARCH_PASSWORD [password]
-* ELASTICSEARCH_VERSION [1.6.0]
-* ELASTICSEARCH_AWS_PLUGIN_VERSION [2.6.0]
-* SKIP_INSTANCE_PACKAGE_UPDATES [false]
-* SKIP_DELETE_VOLUMES [false]
-* INSTANCE_TYPE [c3.large]
-* REPLACE_INSTANCES [false]
+| Variable                         | Default                   | Explanation                        |
+-----------------------------------------------------------------------------------------------------
+| AWS_ACCESS_KEY_ID                |                           | needed, will not run without       |
+| AWS_SECRET_ACCESS_KEY            |                           | needed, will not run without       |
+| AWS_REGION                       |                           |                                    |
+| VPC                              | devvpc                    |                                    |
+| SUBNETS                          | SubnetData1A,SubnetApps1B |                                    |
+| ENVIRONMENT                      | my                        |                                    |
+| ROUTE53_ZONE_NAME                | appdev.io                 |                                    |
+| INSTANCE_COUNT                   | 2                         |                                    |
+| SSL_CERTIFICATE_NAME             | wild.appdev.io            |                                    |
+| SEARCH_DOMAIN_NAME               | $ENV-es.$ZONE_NAME        | i.e. `my-es.appdev.io`             |
+| SSH_KEY_NAME                     | dev@lgi                   |                                    |
+| SEARCH_USER                      | elasticsearch             |                                    |
+| SEARCH_PASSWORD                  | password                  |                                    |
+| ELASTICSEARCH_VERSION            | 1.6.0                     |                                    |
+| ELASTICSEARCH_AWS_PLUGIN_VERSION | 2.6.0                     |                                    |
+| SKIP_INSTANCE_PACKAGE_UPDATES    | false                     |                                    |
+| SKIP_DELETE_VOLUMES              | false                     |                                    |
+| INSTANCE_TYPE                    | c3.large                  |                                    |
+| REPLACE_INSTANCES                | false                     |                                    |
