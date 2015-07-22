@@ -28,7 +28,7 @@ Open `https://<environment>-es.<route53 zone name>/_plugin/head`
 
 Destroy the environment:
 
-    rake destroy AWS_ACCESS_KEY_ID=<aws key> AWS_SECRET_ACCESS_KEY=<aws secret> AWS_REGION=eu-west-1 DELETE_VOLUMES=true ENVIRONMENT=edwin
+    rake destroy AWS_ACCESS_KEY_ID=<aws key> AWS_SECRET_ACCESS_KEY=<aws secret> AWS_REGION=eu-west-1 ENVIRONMENT=edwin
 
 
 ## Infrastructure details
