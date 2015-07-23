@@ -4,7 +4,7 @@
         "CookbookRepo": {
             "Description": "GitURL",
             "Type": "String",
-            "Default": "https://github.com/madeddie/opsworks-elasticsearch-cookbook.git"
+            "Default": "https://github.com/madeddie/elasticsearch-opsworks.git"
         },
 
         "CookbookRepoRevision": {
@@ -86,11 +86,17 @@
             "Default": "subnet-49ef3a10, subnet-a1c44fc4"
         },
 
-	"AvailabilityZones": {
+        "AvailabilityZones": {
             "Description": "List of availability zones to use for stack instances",
-	    "Type": "List<AWS::EC2::AvailabilityZone::Name>",
+	          "Type": "List<AWS::EC2::AvailabilityZone::Name>",
             "Default": "eu-west-1a, eu-west-1b"
+        },
+
+        "OpenvpnSubnet": {
+            "Description": "CIDR subnet used by OpenVPN",
+            "Type": "String"
         }
+
 
     },
 
@@ -312,19 +318,19 @@
                         "IpProtocol": "tcp",
                         "FromPort": "9200",
                         "ToPort": "9200",
-                        "CidrIp": "172.24.2.0/24"
+                        "CidrIp": { "Ref": "OpenvpnSubnet" } 
                     },
                     {
                         "IpProtocol": "tcp",
                         "FromPort": "9300",
                         "ToPort": "9300",
-                        "CidrIp": "172.24.2.0/24"
+                        "CidrIp": { "Ref": "OpenvpnSubnet" }
                     },
                     {
                         "IpProtocol": "tcp",
                         "FromPort": "22",
                         "ToPort": "22",
-                        "CidrIp": "172.24.2.0/24"
+                        "CidrIp": { "Ref": "OpenvpnSubnet" }
                     }
                 ]
             }
