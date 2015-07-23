@@ -311,6 +311,7 @@ task :destroy do
 
     puts "Deleting OpsWorks stack #{stack_name}"
     cf_stack.delete
+    wait_for_cf_stack_op_to_finish(cf_stack)
   else
     puts "Environment #{environment} does not exist"
   end
