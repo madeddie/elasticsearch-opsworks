@@ -50,20 +50,20 @@ These variables are available to be given or override the default:
 |----------------------------------|---------------------------|------------------------------------|
 | AWS_ACCESS_KEY_ID                |                           | needed, will not run without       |
 | AWS_SECRET_ACCESS_KEY            |                           | needed, will not run without       |
-| AWS_REGION                       |                           |                                    |
+| AWS_REGION                       | eu-west-1                 |                                    |
+| ENVIRONMENT                      | my                        | name of the stack                  |
 | VPC                              | devvpc                    |                                    |
 | SUBNETS                          | SubnetData1A,SubnetApps1B |                                    |
-| ENVIRONMENT                      | my                        |                                    |
-| ROUTE53_ZONE_NAME                | appdev.io                 |                                    |
 | INSTANCE_COUNT                   | 2                         |                                    |
 | SSL_CERTIFICATE_NAME             | wild.appdev.io            |                                    |
-| SEARCH_DOMAIN_NAME               | $ENV-es.$ZONE_NAME        | i.e. `my-es.appdev.io`             |
 | SSH_KEY_NAME                     | dev@lgi                   |                                    |
+| ROUTE53_ZONE_NAME                | appdev.io                 |                                    |
+| SEARCH_DOMAIN_NAME               | $ENV.$ZONE_NAME           | i.e. `my.appdev.io`                |
 | SEARCH_USER                      | elasticsearch             |                                    |
 | SEARCH_PASSWORD                  | password                  |                                    |
-| ELASTICSEARCH_VERSION            | 1.6.0                     |                                    |
-| ELASTICSEARCH_AWS_PLUGIN_VERSION | 2.6.0                     |                                    |
-| SKIP_INSTANCE_PACKAGE_UPDATES    | false                     |                                    |
-| SKIP_DELETE_VOLUMES              | false                     |                                    |
 | INSTANCE_TYPE                    | c3.large                  |                                    |
-| REPLACE_INSTANCES                | false                     |                                    |
+| ELASTICSEARCH_VERSION            | 1.6.0                     |                                    |
+| ELASTICSEARCH_AWS_PLUGIN_VERSION | 2.6.0                     | needs to be compatible to ES ver.  |
+| SKIP_INSTANCE_PACKAGE_UPDATES    | false                     | if true doesn't install updates on deploy |
+| SKIP_DELETE_VOLUMES              | false                     | if true doesn't delete EBS volumes |
+| REPLACE_INSTANCES                | false                     | if true replaces existing instances on re-deploy |
