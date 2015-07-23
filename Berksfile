@@ -1,10 +1,10 @@
 source "https://supermarket.chef.io"
 
 cookbook 'apt', '~> 2.7.0'
+cookbook 'java', '~> 1.31.0'
 #cookbook 'ark', git: 'https://github.com/opscode-cookbooks/ark.git', tag: 'v0.9.0'
 #cookbook 'bluepill', '>= 2.3.1', git: 'https://github.com/opscode-cookbooks/bluepill.git', tag: 'v2.3.1'
 #cookbook 'build-essential', '>= 1.4.2', git: 'https://github.com/opscode-cookbooks/build-essential.git', tag: 'v2.1.2'
-#cookbook 'java', '>= 1.19.2', git: 'https://github.com/opscode-cookbooks/java.git', tag: 'v1.28.0'
 #cookbook 'monit', '>= 0.6', git: 'https://github.com/apsoto/monit.git'
 #cookbook 'ohai', '>= 1.1.12', git: 'https://github.com/opscode-cookbooks/ohai.git', tag: 'v2.0.1'
 #cookbook 'python', '>= 1.4.6', git: 'https://github.com/poise/python.git', tag: 'v1.4.6'
