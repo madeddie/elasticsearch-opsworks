@@ -11,8 +11,10 @@ DEFAULT_RECIPES = [
   'elasticsearch::proxy',
   'elasticsearch::plugins',
   'java',
-  'layer-custom::esmonit'
+  'custom::esmonit'
 ].join(',')
+
+ENV['AWS_REGION'] = 'eu-west-1' if !ENV['AWS_REGION']
 
 def opsworks
   AWS::OpsWorks::Client.new(region: 'us-east-1')
@@ -202,7 +204,12 @@ def vpc_name
 end
 
 def subnet_names
-  ENV['SUBNETS'] || 'SubnetData1A,SubnetApps1B'
+  ENV['SUBNETS'] || 'SubnetData1A,SubnetData1B'
+end
+
+def openvpn_subnet
+  response = cfm.stacks[vpc_name].template
+  JSON.parse(response)['Mappings']['SubnetConfig']['Openvpn1A'][vpc_name].first
 end
 
 def min_master_node_count(instance_count)
@@ -219,8 +226,7 @@ end
 
 def route53_zone_name
   zone = ENV['ROUTE53_ZONE_NAME'] || 'appdev.io.'
-  zone << '.' unless zone.end_with?('.')
-  zone
+  zone.end_with?('.') ? zone : "#{zone}."
 end
 
 def get_required(name)
@@ -246,6 +252,7 @@ task :provision do
     'Route53ZoneName' => route53_zone_name,
     'VPCId' => get_vpc_id(vpc_name),
     'SubnetList' => subnet_id_array.join(','),
+    'OpenvpnSubnet' => openvpn_subnet,
     'SSLCertificateName' => ENV['SSL_CERTIFICATE_NAME'] || 'wild.appdev.io',
     'SearchDomainName' => ENV['SEARCH_DOMAIN_NAME'] || "#{stack_name}.#{route53_zone_name}",
     'SshKeyName' => ENV['SSH_KEY_NAME'] || 'dev@lgi',
