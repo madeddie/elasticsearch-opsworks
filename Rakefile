@@ -300,8 +300,10 @@ task :destroy do
     get_all_instances(layer_id).each do |instance|
       puts "Stopping instance #{instance[:hostname]}"
       opsworks.stop_instance(instance_id: instance[:instance_id])
-      wait_for_instance(instance[:instance_id], 'stopped')
+    end
 
+    get_all_instances(layer_id).each do |instance|
+      wait_for_instance(instance[:instance_id], 'stopped')
       puts "Deleting instance #{instance[:hostname]}"
       opsworks.delete_instance(instance_id: instance[:instance_id], delete_volumes: !ENV['SKIP_DELETE_VOLUMES'])
       wait_for_instance(instance[:instance_id], 'nonexistent')
