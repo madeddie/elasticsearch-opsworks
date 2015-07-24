@@ -216,12 +216,8 @@ def min_master_node_count(instance_count)
   instance_count <= 2 ? 1 : (instance_count / 2 + 1)
 end
 
-def environment
-  ENV['ENVIRONMENT'] || 'my'
-end
-
 def stack_name
-  "#{environment}-es"
+  ENV['STACK_NAME'] || 'my'
 end
 
 def route53_zone_name
@@ -293,7 +289,7 @@ desc 'Destroys the ElasticSearch cluster'
 task :destroy do
   cf_stack = cfm.stacks[stack_name]
   if cf_stack.exists?
-    puts "Destroying environment #{environment}"
+    puts "Destroying environment #{stack_name}"
 
     layer_id = cf_query_output(cf_stack, 'LayerId')
 
@@ -313,6 +309,6 @@ task :destroy do
     cf_stack.delete
     wait_for_cf_stack_op_to_finish(cf_stack)
   else
-    puts "Environment #{environment} does not exist"
+    puts "Environment #{stack_name} does not exist"
   end
 end

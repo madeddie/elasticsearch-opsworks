@@ -22,13 +22,13 @@ Please setup the following dependencies in your AWS region:
 
 Provision the environment:
 
-    rake provision AWS_ACCESS_KEY_ID=<aws key> AWS_SECRET_ACCESS_KEY=<aws secret> AWS_REGION=eu-west-1 ENVIRONMENT=edwin
+    rake provision AWS_ACCESS_KEY_ID=<aws key> AWS_SECRET_ACCESS_KEY=<aws secret> STACK_NAME=edwin
 
-Open `https://<environment>-es.<route53 zone name>/_plugin/head`
+Open `https://<environment>.<route53 zone name>/_plugin/head`
 
 Destroy the environment:
 
-    rake destroy AWS_ACCESS_KEY_ID=<aws key> AWS_SECRET_ACCESS_KEY=<aws secret> AWS_REGION=eu-west-1 ENVIRONMENT=edwin
+    rake destroy AWS_ACCESS_KEY_ID=<aws key> AWS_SECRET_ACCESS_KEY=<aws secret> STACK_NAME=edwin
 
 
 ## Infrastructure details
@@ -39,7 +39,7 @@ Destroy the environment:
 * One master node by default, 2-node cluster by default
 * Load balanced by an ELB
 * ELB listens on HTTP/HTTPS, configured with basic auth challenge (nginx)
-* Instances listen on 22, 9200 and 9300 without auth
+* ELB and instances listen on 9200 and 9300 without auth to members of their respective security groups
 * EC2 instance type defaults to `c3.large`
 
 ## Variables
@@ -51,19 +51,19 @@ These variables are available to be given or override the default:
 | AWS_ACCESS_KEY_ID                |                           | needed, will not run without       |
 | AWS_SECRET_ACCESS_KEY            |                           | needed, will not run without       |
 | AWS_REGION                       | eu-west-1                 |                                    |
-| ENVIRONMENT                      | my                        | name of the stack                  |
+| STACK_NAME                       | my                        | name of the CF and OpsWorks stacks |
 | VPC                              | devvpc                    |                                    |
-| SUBNETS                          | SubnetData1A,SubnetApps1B |                                    |
+| SUBNETS                          | SubnetData1A,SubnetData1B |                                    |
 | INSTANCE_COUNT                   | 2                         |                                    |
 | SSL_CERTIFICATE_NAME             | wild.appdev.io            |                                    |
 | SSH_KEY_NAME                     | dev@lgi                   |                                    |
 | ROUTE53_ZONE_NAME                | appdev.io                 |                                    |
-| SEARCH_DOMAIN_NAME               | $ENV.$ZONE_NAME           | i.e. `my.appdev.io`                |
+| SEARCH_DOMAIN_NAME               | $STACK_NAME.$ZONE_NAME    | i.e. `my.appdev.io`                |
 | SEARCH_USER                      | elasticsearch             |                                    |
 | SEARCH_PASSWORD                  | password                  |                                    |
 | INSTANCE_TYPE                    | c3.large                  |                                    |
 | ELASTICSEARCH_VERSION            | 1.6.0                     |                                    |
-| ELASTICSEARCH_AWS_PLUGIN_VERSION | 2.6.0                     | needs to be compatible to ES ver.  |
-| SKIP_INSTANCE_PACKAGE_UPDATES    | false                     | if true doesn't install updates on deploy |
-| SKIP_DELETE_VOLUMES              | false                     | if true doesn't delete EBS volumes |
-| REPLACE_INSTANCES                | false                     | if true replaces existing instances on re-deploy |
+| ELASTICSEARCH_AWS_PLUGIN_VERSION | 2.6.0                     | needs to be compatible to ES version |
+| SKIP_INSTANCE_PACKAGE_UPDATES    | false                     | if true doesn't install updates on provision |
+| SKIP_DELETE_VOLUMES              | false                     | if true doesn't delete EBS volumes on destroy |
+| REPLACE_INSTANCES                | false                     | if true replaces existing instances on re-provision |
